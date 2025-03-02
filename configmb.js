@@ -1,4 +1,4 @@
-let currentEmojiIndex = parseInt(localStorage.getItem('currentEmojiIndex')) || 0;
+let currentEmojiIndex = parseInt(TinyDB1.GetValue('currentEmojiIndex', 0));
 
 function calenderShow() {
     console.log("calenderShow called");
@@ -55,18 +55,18 @@ function updateMonthEmoji(emoji) {
 
     // Set the emoji for the current day
     monthEmojis[day - 1].src = `/assets/img/${emoji}`;
-    localStorage.setItem(`emoji_${day}`, emoji);
+    TinyDB1.StoreValue(`emoji_${day}`, emoji);
 
     // Reset all monthEmojis to the initial image at the end of the month
     if (day === daysInMonth) {
         setTimeout(() => {
             resetMonthEmojis();
             currentEmojiIndex = 0;
-            localStorage.setItem('currentEmojiIndex', currentEmojiIndex);
+            TinyDB1.StoreValue('currentEmojiIndex', currentEmojiIndex);
         }, 24 * 60 * 60 * 1000); // Reset at midnight
     } else {
         currentEmojiIndex = day;
-        localStorage.setItem('currentEmojiIndex', currentEmojiIndex);
+        TinyDB1.StoreValue('currentEmojiIndex', currentEmojiIndex);
     }
 }
 
@@ -74,14 +74,14 @@ function resetMonthEmojis() {
     const monthEmojis = document.querySelectorAll('.grid-emoji');
     monthEmojis.forEach((emoji, index) => {
         emoji.src = '/assets/img/Frame 2.png';
-        localStorage.removeItem(`emoji_${index + 1}`);
+        TinyDB1.ClearTag(`emoji_${index + 1}`);
     });
 }
 
 function loadEmojis() {
     const monthEmojis = document.querySelectorAll('.grid-emoji');
     monthEmojis.forEach((emoji, index) => {
-        const savedEmoji = localStorage.getItem(`emoji_${index + 1}`);
+        const savedEmoji = TinyDB1.GetValue(`emoji_${index + 1}`, null);
         if (savedEmoji) {
             emoji.src = `/assets/img/${savedEmoji}`;
         }
@@ -109,20 +109,20 @@ function updateImageAtInterval(interval) {
     setInterval(() => {
         const newImage = getRandomImage();
         flashCard.src = newImage;
-        localStorage.setItem('flashCardImage', newImage);
+        TinyDB1.StoreValue('flashCardImage', newImage);
     }, interval);
 }
 
-// Function to set the initial image from localStorage or a random image
+// Function to set the initial image from TinyDB or a random image
 function setInitialImage() {
     const flashCard = document.getElementById('flashCard');
-    const savedImage = localStorage.getItem('flashCardImage');
+    const savedImage = TinyDB1.GetValue('flashCardImage', null);
     if (savedImage) {
         flashCard.src = savedImage;
     } else {
         const newImage = getRandomImage();
         flashCard.src = newImage;
-        localStorage.setItem('flashCardImage', newImage);
+        TinyDB1.StoreValue('flashCardImage', newImage);
     }
 }
 
@@ -134,10 +134,10 @@ function updateDate() {
     const fullMonth = date.toLocaleString('default', { month: 'long' });
     document.getElementById('numDay').innerText = day;
     document.getElementById('numMonth').innerText = month;
-    const previousMonth = localStorage.getItem('previousMonth');
+    const previousMonth = TinyDB1.GetValue('previousMonth', null);
     if (previousMonth !== fullMonth) {
         resetMonthEmojis();
-        localStorage.setItem('previousMonth', fullMonth);
+        TinyDB1.StoreValue('previousMonth', fullMonth);
     }
     document.getElementById('numMonths').innerText = fullMonth;
 }
@@ -147,7 +147,7 @@ window.onload = () => {
     updateDate();
     setInitialImage();
     loadEmojis();
-    const oneDayInMilliseconds = 1 * 1 * 1 * 1000; // 24 hours
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 24 hours
     updateImageAtInterval(oneDayInMilliseconds);
     setInterval(() => {
         // Update the emoji for the current day
@@ -200,8 +200,8 @@ document.addEventListener("DOMContentLoaded", function () {
     deletePasscodeBtn.id = "delete-passcode";
     deletePasscodeBtn.textContent = "Delete Passcode";
   
-    // เช็คว่ามีรหัสผ่านใน localStorage หรือไม่
-    if (localStorage.getItem("passcode")) {
+    // เช็คว่ามีรหัสผ่านใน TinyDB หรือไม่
+    if (TinyDB1.GetValue("passcode", null)) {
         passcodeToggle.checked = true;
     } else {
         passcodeToggle.checked = false;
@@ -211,8 +211,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (this.checked) {
             passcodeModal.style.display = "block";
         } else {
-            localStorage.removeItem("passcode");
-            localStorage.setItem("passcodeEnabled", "false");
+            TinyDB1.ClearTag("passcode");
+            TinyDB1.StoreValue("passcodeEnabled", "false");
             alert("Passcode ถูกปิดแล้ว");
             passcodeToggle.checked = false;
         }
@@ -220,8 +220,8 @@ document.addEventListener("DOMContentLoaded", function () {
   
     savePasscodeBtn.addEventListener("click", function () {
         if (passcodeInput.value.length === 4) {
-            localStorage.setItem("passcode", passcodeInput.value);
-            localStorage.setItem("passcodeEnabled", "true");
+            TinyDB1.StoreValue("passcode", passcodeInput.value);
+            TinyDB1.StoreValue("passcodeEnabled", "true");
             alert("รหัสผ่านถูกบันทึกแล้ว!");
             passcodeModal.style.display = "none";
         } else {
@@ -235,8 +235,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   
     deletePasscodeBtn.addEventListener("click", function () {
-        localStorage.removeItem("passcode");
-        localStorage.setItem("passcodeEnabled", "false");
+        TinyDB1.ClearTag("passcode");
+        TinyDB1.StoreValue("passcodeEnabled", "false");
         alert("รหัสผ่านถูกลบแล้ว!");
         passcodeModal.style.display = "none";
         passcodeToggle.checked = false;
@@ -269,25 +269,25 @@ document.addEventListener("DOMContentLoaded", function () {
       const notificationAlert = document.getElementById("notificationAlert");
   
       // โหลดค่าที่บันทึกไว้
-      if (localStorage.getItem("notificationEnabled") === "true") {
+      if (TinyDB1.GetValue("notificationEnabled", "false") === "true") {
           notificationSwitch.checked = true;
           notificationForm.style.display = "block";
       } else {
           notificationForm.style.display = "none";
       }
   
-      if (localStorage.getItem("notificationTime")) {
-          notificationTimeInput.value = localStorage.getItem("notificationTime");
+      if (TinyDB1.GetValue("notificationTime", null)) {
+          notificationTimeInput.value = TinyDB1.GetValue("notificationTime", null);
       }
   
       // เปิด/ปิดฟอร์มแจ้งเตือน
       notificationSwitch.addEventListener("change", function () {
           if (this.checked) {
               notificationForm.style.display = "block";
-              localStorage.setItem("notificationEnabled", "true");
+              TinyDB1.StoreValue("notificationEnabled", "true");
           } else {
               notificationForm.style.display = "none";
-              localStorage.setItem("notificationEnabled", "false");
+              TinyDB1.StoreValue("notificationEnabled", "false");
           }
       });
   
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
       saveNotificationBtn.addEventListener("click", function () {
           const timeValue = notificationTimeInput.value;
           if (timeValue) {
-              localStorage.setItem("notificationTime", timeValue);
+              TinyDB1.StoreValue("notificationTime", timeValue);
               notificationAlert.style.display = "block";
               setTimeout(() => {
                   notificationAlert.style.display = "none";
@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
       // ฟังก์ชันแจ้งเตือนเมื่อถึงเวลาที่ตั้งไว้
       function checkNotificationTime() {
-          const savedTime = localStorage.getItem("notificationTime");
+          const savedTime = TinyDB1.GetValue("notificationTime", null);
           if (!savedTime) return;
   
           const now = new Date();
