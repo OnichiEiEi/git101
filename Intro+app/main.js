@@ -171,7 +171,7 @@ scrollTopBtn.addEventListener("click", function() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 });
 function createSnowflake() {
-  const snowflake = document.createElement("images"); // ใช้ <img> แทน emoji ❄️
+  const snowflake = document.createElement("img"); // ใช้ <img> แทน emoji ❄️
   snowflake.classList.add("snowflake");
 
   // กำหนดรายการภาพที่ต้องการสุ่ม
