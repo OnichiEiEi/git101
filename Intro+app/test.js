@@ -175,11 +175,11 @@ function createSnowflake() {
 
   // กำหนดรายการภาพที่ต้องการสุ่ม
   const images = [
-      "/img/tooptp.png",
-      "/img/parntp.png",
-      "/img/nontp.png",
-      "/img/belltp.png",
-      "/img/deentp.png"
+      "./img/tooptp.png",
+      "./img/parntp.png",
+      "./img/nontp.png",
+      "./img/belltp.png",
+      "./img/deentp.png"
   ];
   
   // เลือกภาพแบบสุ่ม
